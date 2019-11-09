@@ -1,6 +1,9 @@
 package ercanduman.taskdemo.ui;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,9 +14,14 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.lang.ref.WeakReference;
+
 import ercanduman.taskdemo.R;
+import ercanduman.taskdemo.util.NetworkConnection;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+    private DataLoading dataLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        dataLoading = new DataLoading(this);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,7 +46,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dataLoading != null) dataLoading.cancel(true);
+    }
+
     private void getDataFromNetwork() {
+        if (dataLoading != null) dataLoading.execute();
 
     }
 
@@ -61,5 +77,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    static class DataLoading extends AsyncTask<Void, Void, String> {
+        private NetworkConnection connection;
+        private WeakReference<Context> context;
+
+        DataLoading(Context context) {
+            this.context = new WeakReference<>(context);
+            connection = new NetworkConnection();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(TAG, "DataLoading - Begin!");
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            Log.d(TAG, "DataLoading - Executing...");
+            return connection.getDataFromUrl(context.get());
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "onPostExecute: result: " + result);
+            Log.d(TAG, "DataLoading - End!");
+        }
     }
 }
