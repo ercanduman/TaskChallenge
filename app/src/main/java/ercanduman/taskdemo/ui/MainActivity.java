@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
 
     private TextView mainContent;
     private ProgressBar loadingBar;
+    private boolean isDataLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
     }
 
     private void getDataFromNetwork() {
-        if (dataLoading != null) dataLoading.execute();
-
+        if (dataLoading != null && !isDataLoaded) dataLoading.execute();
+        else Toast.makeText(this, "Data is already loaded!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
 
     @Override
     public void onFinished(String data) {
+        isDataLoaded = true;
         mainContent.setText(data);
         if (loadingBar != null) loadingBar.setVisibility(View.GONE);
     }
