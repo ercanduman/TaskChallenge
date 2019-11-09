@@ -7,8 +7,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,9 +18,16 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import ercanduman.taskdemo.R;
+import ercanduman.taskdemo.data.Album;
 import ercanduman.taskdemo.util.NetworkConnection;
 import ercanduman.taskdemo.util.ProcessListener;
 
@@ -27,9 +35,9 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
     private static final String TAG = "MainActivity";
     private DataLoading dataLoading;
 
-    private TextView mainContent;
     private ProgressBar loadingBar;
     private boolean isDataLoaded;
+    private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mainContent = findViewById(R.id.activity_main_content_view);
         loadingBar = findViewById(R.id.activity_main_progress_bar);
+        listView = findViewById(R.id.activity_main_list_view);
 
         dataLoading = new DataLoading(this, this);
 
@@ -103,8 +111,33 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
     @Override
     public void onFinished(String data) {
         isDataLoaded = true;
-        mainContent.setText(data);
+        handleJsonData(data);
         if (loadingBar != null) loadingBar.setVisibility(View.GONE);
+    }
+
+    private void handleJsonData(String data) {
+        List<Album> albumList = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(data);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject albumObject = (JSONObject) jsonArray.get(i);
+
+                Album album = new Album();
+                album.setUserId(albumObject.getString("userId"));
+                album.setTitle(albumObject.getString("title"));
+                album.setId(albumObject.getString("id"));
+                albumList.add(album);
+            }
+            handleAlbumListAndShowOnList(albumList);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleAlbumListAndShowOnList(List<Album> albumList) {
+        ArrayAdapter<Album> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, albumList);
+        listView.setAdapter(adapter);
     }
 
     static class DataLoading extends AsyncTask<Void, Void, String> {
