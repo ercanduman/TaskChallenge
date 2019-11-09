@@ -3,7 +3,6 @@ package ercanduman.taskdemo.util;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.net.URL;
 import ercanduman.taskdemo.Constants;
 
 public class NetworkConnection {
-    private boolean isNetworkAvailable(Context context) {
+    public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager manager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (manager == null) return false;
 
@@ -55,9 +54,7 @@ public class NetworkConnection {
                 }
             }
         } else {
-            String message = "No Network Available!";
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-            return message;
+            return "No Network Available!";
         }
     }
 }

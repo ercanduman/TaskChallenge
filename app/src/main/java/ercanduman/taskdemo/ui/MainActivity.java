@@ -51,7 +51,11 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
                         .setAction("Yes", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                getDataFromNetwork();
+                                if (NetworkConnection.isNetworkAvailable(MainActivity.this)) {
+                                    getDataFromNetwork();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "No Network Available!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }).show();
             }
