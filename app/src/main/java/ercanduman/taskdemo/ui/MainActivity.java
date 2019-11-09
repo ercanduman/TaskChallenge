@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,10 +20,14 @@ import java.lang.ref.WeakReference;
 
 import ercanduman.taskdemo.R;
 import ercanduman.taskdemo.util.NetworkConnection;
+import ercanduman.taskdemo.util.ProcessListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ProcessListener {
     private static final String TAG = "MainActivity";
     private DataLoading dataLoading;
+
+    private TextView mainContent;
+    private ProgressBar loadingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +36,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        dataLoading = new DataLoading(this);
+        mainContent = findViewById(R.id.activity_main_content_view);
+        loadingBar = findViewById(R.id.activity_main_progress_bar);
+
+        dataLoading = new DataLoading(this, this);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,18 +89,32 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onStarted() {
+        if (loadingBar != null) loadingBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onFinished(String data) {
+        mainContent.setText(data);
+        if (loadingBar != null) loadingBar.setVisibility(View.GONE);
+    }
+
     static class DataLoading extends AsyncTask<Void, Void, String> {
         private NetworkConnection connection;
         private WeakReference<Context> context;
+        private ProcessListener listener;
 
-        DataLoading(Context context) {
+        DataLoading(Context context, ProcessListener listener) {
             this.context = new WeakReference<>(context);
             connection = new NetworkConnection();
+            this.listener = listener;
         }
 
         @Override
         protected void onPreExecute() {
             Log.d(TAG, "DataLoading - Begin!");
+            listener.onStarted();
         }
 
         @Override
@@ -102,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             Log.d(TAG, "onPostExecute: result: " + result);
+            listener.onFinished(result);
             Log.d(TAG, "DataLoading - End!");
         }
     }
