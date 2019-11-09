@@ -1,5 +1,8 @@
 package ercanduman.taskdemo.ui;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,8 +29,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import ercanduman.taskdemo.Constants;
 import ercanduman.taskdemo.R;
 import ercanduman.taskdemo.data.Album;
+import ercanduman.taskdemo.services.JobSchedulerService;
 import ercanduman.taskdemo.util.NetworkConnection;
 import ercanduman.taskdemo.util.ProcessListener;
 
@@ -68,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
                         }).show();
             }
         });
+
+
     }
 
     @Override
@@ -96,11 +103,33 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_start_job_scheduler) {
+            startJobScheduler();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startJobScheduler() {
+        Log.d(TAG, "startJobScheduler: called");
+        ComponentName componentName = new ComponentName(this, JobSchedulerService.class);
+        JobInfo jobInfo = new JobInfo.Builder(Constants.BROADCAST_JOB_ID, componentName)
+                .setMinimumLatency(3 * 1000) // Wait at least 30s
+                .setOverrideDeadline(1000)
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        if (scheduler != null) {
+            int resultCode = scheduler.schedule(jobInfo);
+            if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                Toast.makeText(this, "Job Scheduled!", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == JobScheduler.RESULT_FAILURE) {
+                Toast.makeText(this, "Job Scheduling Failed!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Unknown result code! resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

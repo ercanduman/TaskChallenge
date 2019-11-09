@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">TaskDemo</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_start_job_scheduler">Start Job Scheduler</string>
 </resources>
