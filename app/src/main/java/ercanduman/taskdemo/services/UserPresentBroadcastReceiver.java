@@ -2,6 +2,7 @@ package ercanduman.taskdemo.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import androidx.core.app.NotificationCompat;
 
 import ercanduman.taskdemo.Constants;
 import ercanduman.taskdemo.R;
+import ercanduman.taskdemo.ui.MainActivity;
 
 public class UserPresentBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "UserPresentBroadcast";
@@ -30,10 +32,14 @@ public class UserPresentBroadcastReceiver extends BroadcastReceiver {
             long minutes = ((timePassed - seconds) / 1000) / 60;
             Log.d(TAG, "onReceive: minutes: " + minutes);
             Log.d(TAG, "onReceive: seconds: " + seconds);
+
+            Intent activityIntent = new Intent(context, MainActivity.class);
+            PendingIntent mainActivity = PendingIntent.getActivity(context, 0, activityIntent, 0);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, Constants.CHANNEL_ID)
                     .setContentTitle("TaskDemo App Broadcast Receiver")
                     .setContentText("Time passed so far: " + minutes + " (minutes) and "
                             + seconds + " (seconds)")
+                    .setContentIntent(mainActivity)
                     .setSmallIcon(R.drawable.ic_launcher_background);
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
