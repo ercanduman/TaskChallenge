@@ -46,8 +46,8 @@ public class JobSchedulerService extends JobService {
             AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
             if (alarmManager != null) {
                 alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        0,
-                        6000,
+                        5000,
+                        60000,
                         sendBroadcastIntent);
             }
         } else {

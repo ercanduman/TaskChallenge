@@ -106,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
         if (id == R.id.action_start_job_scheduler) {
             startJobScheduler();
             return true;
+        } else if (id == R.id.action_stop_job_scheduler) {
+            stopJobScheduler();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -115,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
         Log.d(TAG, "startJobScheduler: called");
         ComponentName componentName = new ComponentName(this, JobSchedulerService.class);
         JobInfo jobInfo = new JobInfo.Builder(Constants.BROADCAST_JOB_ID, componentName)
-                .setMinimumLatency(3 * 1000) // Wait at least 30s
                 .setOverrideDeadline(1000)
 //                .setPeriodic(3)
                 .build();
@@ -130,6 +132,15 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
             } else {
                 Toast.makeText(this, "Unknown result code! resultCode: " + resultCode, Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private void stopJobScheduler() {
+        Log.d(TAG, "stopJobScheduler: called.");
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        if (scheduler != null) {
+            scheduler.cancel(Constants.BROADCAST_JOB_ID);
+            Log.d(TAG, "stopJobScheduler: Job canceled...");
         }
     }
 

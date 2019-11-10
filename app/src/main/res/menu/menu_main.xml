@@ -7,4 +7,9 @@
         android:orderInCategory="100"
         android:title="@string/action_start_job_scheduler"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_stop_job_scheduler"
+        android:orderInCategory="101"
+        android:title="@string/action_stop_job_scheduler"
+        app:showAsAction="never" />
 </menu>

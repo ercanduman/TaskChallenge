@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">TaskDemo</string>
     <string name="action_start_job_scheduler">Start Job Scheduler</string>
+    <string name="action_stop_job_scheduler">Stop Job Scheduler</string>
 </resources>
