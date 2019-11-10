@@ -7,7 +7,7 @@ public class Preferences {
     private static final String SHARED_PREFS = "ercanduman.taskdemo.SHARED_PREFS";
     private static final String SAVED_TIME = "ercanduman.taskdemo.SAVED_TIME";
 
-    private SharedPreferences preferences;
+    private static SharedPreferences preferences;
 
     public Preferences() {
     }
@@ -20,7 +20,7 @@ public class Preferences {
         preferences.edit().putString(SAVED_TIME, savedTime).apply();
     }
 
-    public String getSavedTime() {
+    public static String getSavedTime() {
         return preferences.getString(SAVED_TIME, String.valueOf(System.currentTimeMillis()));
     }
 }

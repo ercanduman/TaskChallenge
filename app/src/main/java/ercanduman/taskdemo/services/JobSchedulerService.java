@@ -1,5 +1,7 @@
 package ercanduman.taskdemo.services;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
@@ -13,13 +15,10 @@ public class JobSchedulerService extends JobService {
     private static final String TAG = "JobSchedulerService";
     private boolean isJobCancelled;
     private UserPresentBroadcastReceiver broadcastReceiver = new UserPresentBroadcastReceiver();
-    private Preferences preferences;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        preferences = new Preferences(this);
-        preferences.setSavedTime(String.valueOf(System.currentTimeMillis()));
         Log.d(TAG, "onCreate: called");
         IntentFilter broadcastIntent = new IntentFilter(Constants.BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, broadcastIntent);
@@ -39,8 +38,18 @@ public class JobSchedulerService extends JobService {
             Log.d(TAG, "onStartJob: called for NON canceled job...");
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction(Constants.BROADCAST_ACTION);
-            broadcastIntent.putExtra(Constants.EXTRA_INPUT, preferences.getSavedTime());
-            sendBroadcast(broadcastIntent);
+            broadcastIntent.putExtra(Constants.EXTRA_INPUT, Preferences.getSavedTime());
+//            sendBroadcast(broadcastIntent);
+
+            PendingIntent sendBroadcastIntent = PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
+            //Schedule alarm
+            AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+            if (alarmManager != null) {
+                alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        0,
+                        6000,
+                        sendBroadcastIntent);
+            }
         } else {
             Log.d(TAG, "onStartJob: called for canceled job...");
         }

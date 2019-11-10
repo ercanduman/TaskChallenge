@@ -10,8 +10,6 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
-import java.util.concurrent.TimeUnit;
-
 import ercanduman.taskdemo.Constants;
 import ercanduman.taskdemo.R;
 
@@ -22,21 +20,20 @@ public class UserPresentBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Constants.BROADCAST_ACTION.equals(intent.getAction())) {
             String passedData = intent.getStringExtra(Constants.EXTRA_INPUT);
-            Log.d(TAG, "onReceive: passedData: " + passedData);
 
             long lastTime = 0;
             if (passedData != null) {
                 lastTime = Long.valueOf(passedData);
             }
             long timePassed = System.currentTimeMillis() - lastTime;
-//            int minutes = (int) ((timePassed / 1000 * 60) % 24);
-//            int seconds = (int) ((timePassed / 1000) % 24);
-            int seconds = (int) TimeUnit.MILLISECONDS.toSeconds(timePassed);
-
+            int seconds = (int) ((timePassed / 1000) % 60);
+            long minutes = ((timePassed - seconds) / 1000) / 60;
+            Log.d(TAG, "onReceive: minutes: " + minutes);
             Log.d(TAG, "onReceive: seconds: " + seconds);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, Constants.CHANNEL_ID)
                     .setContentTitle("TaskDemo App Broadcast Receiver")
-                    .setContentText("Time passed so far: " + seconds + " (seconds)")
+                    .setContentText("Time passed so far: " + minutes + " (minutes) and "
+                            + seconds + " (seconds)")
                     .setSmallIcon(R.drawable.ic_launcher_background);
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -47,7 +44,6 @@ public class UserPresentBroadcastReceiver extends BroadcastReceiver {
                 if (manager != null) manager.createNotificationChannel(channel);
             }
             if (manager != null) {
-                Log.d(TAG, "onReceive: notification will be showed...");
                 manager.notify(1, notificationBuilder.build());
             } else {
                 Log.d(TAG, "onReceive: cannot show notification...");
