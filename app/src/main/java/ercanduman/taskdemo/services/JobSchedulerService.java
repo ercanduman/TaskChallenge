@@ -7,15 +7,20 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 import ercanduman.taskdemo.Constants;
+import ercanduman.taskdemo.util.Preferences;
 
 public class JobSchedulerService extends JobService {
     private static final String TAG = "JobSchedulerService";
     private boolean isJobCancelled;
     private UserPresentBroadcastReceiver broadcastReceiver = new UserPresentBroadcastReceiver();
+    private Preferences preferences;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        preferences = new Preferences(this);
+        preferences.setSavedTime(String.valueOf(System.currentTimeMillis()));
+        Log.d(TAG, "onCreate: called");
         IntentFilter broadcastIntent = new IntentFilter(Constants.BROADCAST_ACTION);
         registerReceiver(broadcastReceiver, broadcastIntent);
     }
@@ -23,6 +28,7 @@ public class JobSchedulerService extends JobService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: called.");
         unregisterReceiver(broadcastReceiver);
     }
 
@@ -33,7 +39,7 @@ public class JobSchedulerService extends JobService {
             Log.d(TAG, "onStartJob: called for NON canceled job...");
             Intent broadcastIntent = new Intent();
             broadcastIntent.setAction(Constants.BROADCAST_ACTION);
-            broadcastIntent.putExtra(Constants.EXTRA_INPUT, String.valueOf(System.currentTimeMillis()));
+            broadcastIntent.putExtra(Constants.EXTRA_INPUT, preferences.getSavedTime());
             sendBroadcast(broadcastIntent);
         } else {
             Log.d(TAG, "onStartJob: called for canceled job...");

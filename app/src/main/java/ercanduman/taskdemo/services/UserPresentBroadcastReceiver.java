@@ -10,6 +10,8 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
+import java.util.concurrent.TimeUnit;
+
 import ercanduman.taskdemo.Constants;
 import ercanduman.taskdemo.R;
 
@@ -22,32 +24,27 @@ public class UserPresentBroadcastReceiver extends BroadcastReceiver {
             String passedData = intent.getStringExtra(Constants.EXTRA_INPUT);
             Log.d(TAG, "onReceive: passedData: " + passedData);
 
-            String savedTime = String.valueOf(System.currentTimeMillis());
+            long lastTime = 0;
             if (passedData != null) {
-                savedTime = passedData;
+                lastTime = Long.valueOf(passedData);
             }
-            long lastTime = Long.valueOf(savedTime);
             long timePassed = System.currentTimeMillis() - lastTime;
-            int minutes = (int) ((timePassed / 1000 * 60) % 24);
+//            int minutes = (int) ((timePassed / 1000 * 60) % 24);
+//            int seconds = (int) ((timePassed / 1000) % 24);
+            int seconds = (int) TimeUnit.MILLISECONDS.toSeconds(timePassed);
 
+            Log.d(TAG, "onReceive: seconds: " + seconds);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, Constants.CHANNEL_ID)
                     .setContentTitle("TaskDemo App Broadcast Receiver")
-                    .setContentText("Time passed so far: " + minutes + "mins!")
-                    .setSmallIcon(R.drawable.ic_notifications_black_24dp);
+                    .setContentText("Time passed so far: " + seconds + " (seconds)")
+                    .setSmallIcon(R.drawable.ic_launcher_background);
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 notificationBuilder.setChannelId(Constants.CHANNEL_ID);
-
-                NotificationChannel channel = new NotificationChannel(
-                        Constants.CHANNEL_ID,
-                        context.getString(R.string.app_name),
-                        NotificationManager.IMPORTANCE_DEFAULT
-
-                );
-                if (manager != null) {
-                    manager.createNotificationChannel(channel);
-                }
+                NotificationChannel channel = new NotificationChannel(Constants.CHANNEL_ID,
+                        context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+                if (manager != null) manager.createNotificationChannel(channel);
             }
             if (manager != null) {
                 Log.d(TAG, "onReceive: notification will be showed...");

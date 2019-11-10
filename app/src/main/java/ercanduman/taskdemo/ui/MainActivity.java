@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements ProcessListener {
         JobInfo jobInfo = new JobInfo.Builder(Constants.BROADCAST_JOB_ID, componentName)
                 .setMinimumLatency(3 * 1000) // Wait at least 30s
                 .setOverrideDeadline(1000)
+//                .setPeriodic(3)
                 .build();
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
